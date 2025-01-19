@@ -1,14 +1,15 @@
-import { relations, sql } from "drizzle-orm";
+import { relations, sql } from "drizzle-orm"
 import {
   index,
   integer,
+  pgEnum,
   pgTableCreator,
   primaryKey,
   text,
   timestamp,
   varchar,
-} from "drizzle-orm/pg-core";
-import { type AdapterAccount } from "next-auth/adapters";
+} from "drizzle-orm/pg-core"
+import { type AdapterAccount } from "next-auth/adapters"
 
 /**
  * This is an example of how to use the multi-project schema feature of Drizzle ORM. Use the same
@@ -16,7 +17,9 @@ import { type AdapterAccount } from "next-auth/adapters";
  *
  * @see https://orm.drizzle.team/docs/goodies#multi-project-schema
  */
-export const createTable = pgTableCreator((name) => `blog-chef-revamp_${name}`);
+export const createTable = pgTableCreator((name) => `blog-chef-revamp_${name}`)
+
+export const userRole = pgEnum("role", ["USER", "ADMIN"])
 
 export const posts = createTable(
   "post",
@@ -37,7 +40,7 @@ export const posts = createTable(
     createdByIdIdx: index("created_by_idx").on(example.createdById),
     nameIndex: index("name_idx").on(example.name),
   })
-);
+)
 
 export const users = createTable("user", {
   id: varchar("id", { length: 255 })
@@ -45,17 +48,18 @@ export const users = createTable("user", {
     .primaryKey()
     .$defaultFn(() => crypto.randomUUID()),
   name: varchar("name", { length: 255 }),
+  role: userRole("role").notNull().default("USER"),
   email: varchar("email", { length: 255 }).notNull(),
   emailVerified: timestamp("email_verified", {
     mode: "date",
     withTimezone: true,
   }).default(sql`CURRENT_TIMESTAMP`),
   image: varchar("image", { length: 255 }),
-});
+})
 
 export const usersRelations = relations(users, ({ many }) => ({
   accounts: many(accounts),
-}));
+}))
 
 export const accounts = createTable(
   "account",
@@ -84,11 +88,11 @@ export const accounts = createTable(
     }),
     userIdIdx: index("account_user_id_idx").on(account.userId),
   })
-);
+)
 
 export const accountsRelations = relations(accounts, ({ one }) => ({
   user: one(users, { fields: [accounts.userId], references: [users.id] }),
-}));
+}))
 
 export const sessions = createTable(
   "session",
@@ -107,11 +111,11 @@ export const sessions = createTable(
   (session) => ({
     userIdIdx: index("session_user_id_idx").on(session.userId),
   })
-);
+)
 
 export const sessionsRelations = relations(sessions, ({ one }) => ({
   user: one(users, { fields: [sessions.userId], references: [users.id] }),
-}));
+}))
 
 export const verificationTokens = createTable(
   "verification_token",
@@ -126,4 +130,4 @@ export const verificationTokens = createTable(
   (vt) => ({
     compoundKey: primaryKey({ columns: [vt.identifier, vt.token] }),
   })
-);
+)

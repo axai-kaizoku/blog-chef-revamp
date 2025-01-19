@@ -1,15 +1,16 @@
-import { DrizzleAdapter } from "@auth/drizzle-adapter";
-import { type DefaultSession, type NextAuthConfig } from "next-auth";
+import { DrizzleAdapter } from "@auth/drizzle-adapter"
+import { type DefaultSession, type NextAuthConfig } from "next-auth"
 
-import { db } from "@/server/db";
+import { db } from "@/server/db"
 import {
   accounts,
   sessions,
   users,
   verificationTokens,
-} from "@/server/db/schema";
-import Google from "next-auth/providers/google";
-import { env } from "@/env";
+} from "@/server/db/schema"
+import Google from "next-auth/providers/google"
+import { env } from "@/env"
+import { sql } from "drizzle-orm"
 
 /**
  * Module augmentation for `next-auth` types. Allows us to add custom properties to the `session`
@@ -17,18 +18,24 @@ import { env } from "@/env";
  *
  * @see https://next-auth.js.org/getting-started/typescript#module-augmentation
  */
+
+enum UserRole {
+  USER = "USER",
+  ADMIN = "ADMIN",
+}
+
 declare module "next-auth" {
   interface Session extends DefaultSession {
     user: {
-      id: string;
+      id: string
       // ...other properties
-      // role: UserRole;
-    } & DefaultSession["user"];
+      role: UserRole
+    } & DefaultSession["user"]
   }
 
   // interface User {
-  //   // ...other properties
-  //   // role: UserRole;
+  // ...other properties
+  // role: UserRole;
   // }
 }
 
@@ -54,6 +61,10 @@ export const authConfig = {
      * @see https://next-auth.js.org/providers/github
      */
   ],
+  session: {
+    strategy: "database",
+  },
+  secret: env.NEXTAUTH_SECRET,
   adapter: DrizzleAdapter(db, {
     usersTable: users,
     accountsTable: accounts,
@@ -68,5 +79,28 @@ export const authConfig = {
         id: user.id,
       },
     }),
+    // session: ({ session, user, token }) => {
+    //   console.log(session, "session session"); // 4th coming
+    //   console.log(user, "user session"); // 5th not coming
+    //   console.log(token, "token  session"); // 6th coming
+    //   return session;
+    // },
+    jwt: async ({ token, session }) => {
+      const userCheck = await db
+        .select()
+        .from(users)
+        .where(sql`${users.email} = ${token.email}`)
+      const dbUser = userCheck[0]
+      console.log(dbUser, "jwt token") // 1st coming
+
+      if (!dbUser) {
+        console.log("No User")
+        // throw new Error("Unable to find user");
+      }
+
+      console.log(token, "jwt token") // 2nd coming
+      console.log(session, "jwt session") // 3rd not coming
+      return token
+    },
   },
-} satisfies NextAuthConfig;
+} satisfies NextAuthConfig
