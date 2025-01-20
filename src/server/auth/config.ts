@@ -9,8 +9,10 @@ import {
   verificationTokens,
 } from "@/server/db/schema"
 import Google from "next-auth/providers/google"
+import CredentialsProvider from "next-auth/providers/credentials"
 import { env } from "@/env"
 import { sql } from "drizzle-orm"
+import { api } from "@/trpc/server"
 
 /**
  * Module augmentation for `next-auth` types. Allows us to add custom properties to the `session`
@@ -49,6 +51,45 @@ export const authConfig = {
     Google({
       clientId: env.AUTH_GOOGLE_ID,
       clientSecret: env.AUTH_GOOGLE_SECRET,
+    }),
+    CredentialsProvider({
+      name: "Credentials",
+      credentials: {
+        email: {
+          label: "Email",
+          type: "email",
+          placeholder: "example@example.com",
+        },
+        password: { label: "Password", type: "password" },
+      },
+      async authorize(credentials) {
+        console.log(credentials, "credentials")
+        const email = credentials.email as string
+        const password = credentials.password as string
+        //
+
+        const user = await api.user.authorizeUser({
+          email: email,
+          password: password,
+        })
+
+        if (user) {
+          console.log(user, "user")
+          return user
+        }
+
+        return null
+        // const userMock = {
+        //   id: "7ab3f0ff-bfa6-479d-a16f-ddc8368e65e7",
+        //   name: "Akshay Yelle (axai)",
+        //   role: "USER",
+        //   email: "02b3akshay@gmail.com",
+        //   password: null,
+        //   emailVerified: null,
+        //   image:
+        //     "https://lh3.googleusercontent.com/a/ACg8ocIdGZ_BTxFQp2LF0nmM0WRHVE2jMFlvH54hwC0ABKQPZT_voBI6=s96-c",
+        // }
+      },
     }),
 
     /**

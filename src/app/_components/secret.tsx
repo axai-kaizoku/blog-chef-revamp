@@ -7,5 +7,5 @@ export const Secret = ({ session }: { session: Session | null }) => {
     enabled: session?.user !== undefined,
   })
 
-  return <span className="text-base"> - {data}</span>
+  return data && <span className="text-base"> - {data}</span>
 }

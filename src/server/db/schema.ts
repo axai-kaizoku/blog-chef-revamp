@@ -38,7 +38,7 @@ export const posts = createTable(
   },
   (example) => ({
     createdByIdIdx: index("created_by_idx").on(example.createdById),
-    nameIndex: index("name_idx").on(example.name),
+    nameIndex: index("post_name_idx").on(example.name),
   })
 )
 
@@ -50,6 +50,7 @@ export const users = createTable("user", {
   name: varchar("name", { length: 255 }),
   role: userRole("role").notNull().default("USER"),
   email: varchar("email", { length: 255 }).notNull(),
+  password: varchar("password", { length: 255 }),
   emailVerified: timestamp("email_verified", {
     mode: "date",
     withTimezone: true,

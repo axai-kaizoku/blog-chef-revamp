@@ -63,6 +63,7 @@ export default async function Home() {
               </Link>
             </div>
           </div>
+          {JSON.stringify(session)}
 
           {session?.user && <LatestPost />}
         </div>
