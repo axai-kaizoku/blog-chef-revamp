@@ -15,6 +15,27 @@
       "when": 1737282970903,
       "tag": "0001_bouncy_mastermind",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1737386190256,
+      "tag": "0002_eager_cloak",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1737386246189,
+      "tag": "0003_aromatic_nebula",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1737478585800,
+      "tag": "0004_rainy_purple_man",
+      "breakpoints": true
     }
   ]
 }

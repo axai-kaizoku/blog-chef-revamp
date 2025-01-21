@@ -1,0 +1,1 @@
+ALTER TABLE "blog-chef-revamp_user" DROP COLUMN IF EXISTS "password";
