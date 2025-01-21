@@ -50,7 +50,6 @@ export const users = createTable("user", {
   name: varchar("name", { length: 255 }),
   role: userRole("role").notNull().default("USER"),
   email: varchar("email", { length: 255 }).notNull(),
-  password: varchar("password", { length: 255 }),
   emailVerified: timestamp("email_verified", {
     mode: "date",
     withTimezone: true,
